@@ -16,9 +16,9 @@ Computing the chow class of matroids. There are spesific functions for different
 
 Each function has the same options for different types of outputs (see the example function):
 - Sc(M) = Sc(M) as a symmetric function
-- Sc^c(M) = Sc(M, comp = True) as a symmetric function
-- Sc(M) = Sc(M, func = False) as a dictionary
-- Sc^c(M) = Sc(M, func = False, comp = True) as a dictionary
-- d_eta(M) = Sc(M, eta = [eta1,eta2,...]) an integer
-- d_{eta^c}(M) = Sc(M eta = [eta1,eta2,...], comp = True) an integer
+- Sc(M, comp = True) = Sc^c(M) as a symmetric function
+- Sc(M, func = False) = Sc(M) as a dictionary
+- Sc(M, func = False, comp = True) = Sc^c(M) as a dictionary
+- Sc(M, eta = [eta1,eta2,...]) = d_eta(M) an integer
+- Sc(M eta = [eta1,eta2,...], comp = True) = d_{eta^c}(M) an integer
   
