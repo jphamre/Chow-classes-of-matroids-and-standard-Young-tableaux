@@ -1,13 +1,13 @@
 # Chow-classes-of-matroids-and-standard-Young-tableaux
 Compute the class of a matroid in the Chow ring of the Grassmannian as in https://arxiv.org/abs/2511.01711.
 
-# operations.sage
+## operations.sage
 Contains common operations on matroids, and functions to create different types of matroids with our convensions.
 
-# nestedbasis.sage
+## nestedbasis.sage
 Computes the coefficients of a matroid in the basis for valuativity of nested matroids, see https://www.sciencedirect.com/science/article/pii/S0095895616300648.
 
-# chowclass.sage
+## chowclass.sage
 Computing the chow class of matroids. There are spesific functions for different classes of matroids:
 - snake matroids, ScSnake
 - connected lattice path matroids, ScLPM
