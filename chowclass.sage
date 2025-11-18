@@ -92,6 +92,7 @@ def Scdiscon(M):
     return inBox(s1*s2, M.rank() , len(M.groundset()))
 
 load('nestedbasis.sage')
+#Chow class of any matroid.
 def Sc(M, func = True, eta = None, comp = False):
     k = M.rank()
     n = len(M.groundset())
