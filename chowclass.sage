@@ -9,6 +9,19 @@ def complement(k,n,eta):
 def partitions(k,n):
     return [p+[0]*(k-len(p)) for p in Partitions(n-1) if (len(p) <= k and p[0] <= n-k)]
 
+#symfunc = Sc^c(M)
+def outputFormat(symfunc, k, n, func = True, eta = None, comp = False):
+    if eta != None:
+        if comp: return symfunc.coefficient(eta)
+        else: return symfunc.coefficient(complement(k,n,eta))
+    if func:
+        if comp:
+            return symfunc
+        else:
+            return sum([coeff*s(complement(k,n,eta)) for (eta, coeff) in symfunc])
+    if comp: return {tuple(etac) : symfunc.coefficient(etac) for etac in partitions(k,n)}
+    else: return {tuple(complement(k,n,etac)) : symfunc.coefficient(etac) for etac in partitions(k,n)}
+
 #Ribbon Schur function of composition b.
 def ribbonSchur(b):
     k = len(b)
@@ -20,18 +33,9 @@ def ribbonSchur(b):
 #Sc(snake matroid)
 def ScSnake(b, func = True, eta = None, comp = False):
     k = len(b)
-    n = sum(b) + 1
+    n = sum(b) +1
     symfunc = ribbonSchur(b) # = Sc^c(S(b))
-    if eta != None:
-        if comp: return symfunc.coefficient(eta)
-        else: return symfunc.coefficient(complement(k,n,eta))
-    if func:
-        if comp:
-            return symfunc
-        else:
-            return sum([coeff*s(complement(k,n,eta)) for (eta, coeff) in symfunc])
-    if comp: return {tuple(etac) : symfunc.coefficient(etac) for etac in partitions(k,n)}
-    else: return {tuple(complement(k,n,etac)) : symfunc.coefficient(etac) for etac in partitions(k,n)}
+    return outputFormat(symfunc,k,n, func = func, eta = eta, comp = comp)
 
 #list of compositions corresponding to ribbons in lam/mu.
 def snakeinLPM(lam, mu):
@@ -53,16 +57,7 @@ def ScLPM(lam, mu, func = True, eta = None, comp = False):
     k = len(lam)
     n = k + lam[0]
     symfunc = sum([ribbonSchur(b) for b in snakeinLPM(lam, mu)])
-    if eta != None:
-        if comp: return symfunc.coefficient(eta)
-        else: return symfunc.coefficient(complement(k,n,eta))
-    if func:
-        if comp:
-            return symfunc
-        else:
-            return sum([coeff*s(complement(k,n,eta)) for (eta, coeff) in symfunc])
-    if comp: return {tuple(etac) : symfunc.coefficient(etac) for etac in partitions(k,n)}
-    else: return {tuple(complement(k,n,etac)) : symfunc.coefficient(etac) for etac in partitions(k,n)}
+    return outputFormat(symfunc,k,n,  func = func, eta = eta, comp = comp)
 
 #Sc(N)
 #N has chain of cyclic flasts of sizes hi and rank ri. 
@@ -77,28 +72,43 @@ def ScNested(data, func = True, eta = None, comp = False):
     mu = mu[::-1]
     return ScLPM(lam, mu, func = func, eta = eta, comp = comp)
 
+#Restrict to the k by n-k box.
+def inBox(sym,k,n):
+    return sum([coeff*s(part) for (part,coeff) in sym if (len(part) <= k and part[0] <= n-k)])
+
+#Add a kXd box to the left of the partition part.
+def addBox(part, k, d):
+    return [p + d for p in part] + [d]*(k - len(part))
+
+#Disconnected matroids.
+def Scdiscon(M):
+    if M.is_connected():
+        return Sc(M)
+    comp = M.components()[0]
+    M1 = restrict(M, comp)
+    M2 = restrict(M, M.groundset() - comp)
+    s1 = sum([coeff*s(addBox(part, M1.rank(), M2.corank())) for (part,coeff) in Sc(M1)])
+    s2 = sum([coeff*s(addBox(part, M2.rank(), M1.corank())) for (part,coeff) in Scdiscon(M2)])
+    return inBox(s1*s2, M.rank() , len(M.groundset()))
+
 load('nestedbasis.sage')
 def Sc(M, func = True, eta = None, comp = False):
     k = M.rank()
     n = len(M.groundset())
-    symfunc = 0 #Sc^c(M)
-    for (coeff,data) in nestedBasis(M):
-        symfunc += coeff*ScNested(data, func = True, comp = True)
-    if eta != None:
-        if comp: return symfunc.coefficient(eta)
-        else: return symfunc.coefficient(complement(k,n,eta))
-    if func:
-        if comp:
-            return symfunc
-        else:
-            return sum([coeff*s(complement(k,n,eta)) for (eta, coeff) in symfunc])
-    if comp: return {tuple(etac) : symfunc.coefficient(etac) for etac in partitions(k,n)}
-    else: return {tuple(complement(k,n,etac)) : symfunc.coefficient(etac) for etac in partitions(k,n)}
-
+    if not M.is_connected():
+        symfuncComp = Scdiscon(M)
+        if (eta == None and func and not comp):
+            return symfuncComp
+        symfunc = sum([coeff*s(complement(k,n,eta)) for (eta, coeff) in symfuncComp])
+    else:
+        symfunc = 0 #Sc^c(M)
+        for (coeff,data) in nestedBasis(M):
+            symfunc += coeff*ScNested(data, func = True, comp = True)
+    return outputFormat(symfunc,k,n,  func = func, eta = eta, comp = comp)
 
 def example():
     S = snakeMatroid((2,1,2,3))
-    print('All possible outputs for S(2,1,2,3)')
+    print('All possible types of outputs for S(2,1,2,3)')
     print(ScSnake((2,1,2,3)), '\n')
     print(ScSnake((2,1,2,3), comp = True), '\n')
     print(ScSnake((2,1,2,3), func = False), '\n')
@@ -111,8 +121,10 @@ def example():
     print(ScNested([(2,1),(4,2),(7,3)]) == ScLPM([4,4,4],[2,1]), '\n')
 
     F = matroids.catalog.Fano()
-    print('Sc(Fano) = ', Sc(F))
+    print('Sc(Fano) = ', Sc(F), '\n')
 
-
+    #Matroid with three connected components.
+    M = LPMpaths([1,2,5,6,8,11,13],[2,4,7,9,10,13,14])
+    print('d_[7,7,7,6,5,4,2](M) = ', Sc(M, eta = [7, 7, 7, 6, 5, 4, 2]))
 
     
