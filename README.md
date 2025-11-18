@@ -21,4 +21,8 @@ Each function has the same options for different types of outputs (see the examp
 - Sc(M, func = False, comp = True) = Sc^c(M) as a dictionary
 - Sc(M, eta = [eta1,eta2,...]) = d_eta(M) an integer
 - Sc(M eta = [eta1,eta2,...], comp = True) = d_{eta^c}(M) an integer
+
+The function Scdiscon uses the formula in https://arxiv.org/abs/2406.05384 to compute the Chow class of a disconnected matroid.
+It outputs only Sc(M) as a symmetric function. For special output run Sc.
+
   
