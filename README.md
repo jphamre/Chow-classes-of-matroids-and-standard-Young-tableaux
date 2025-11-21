@@ -9,10 +9,10 @@ Computes the coefficients of a matroid in the basis for valuativity of nested ma
 
 ## chowclass.sage
 Computing the chow class of matroids. There are spesific functions for different classes of matroids:
-- snake matroids, ScSnake
-- connected lattice path matroids, ScLPM
-- nested matroids, ScNested
-- any matroid using nestedbasis, Sc.
+- snake matroids: ScSnake
+- connected lattice path matroids: ScLPM
+- nested matroids: ScNested
+- any matroid using nestedbasis: Sc.
 
 Each function has the same options for different types of outputs (see the example function):
 - Sc(M) = Sc(M) as a symmetric function
